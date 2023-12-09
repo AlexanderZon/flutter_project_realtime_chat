@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:realtime_chat_project/helpers/mostrar_alerta.dart';
+import 'package:realtime_chat_project/services/auth_service.dart';
 import 'package:realtime_chat_project/widgets/blue_button_widget.dart';
 import 'package:realtime_chat_project/widgets/custom_input_widget.dart';
 import 'package:realtime_chat_project/widgets/labels_widget.dart';
@@ -54,6 +57,7 @@ class __FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -79,11 +83,24 @@ class __FormState extends State<_Form> {
             textController: passwordController,
           ),
           BlueButtonWidget(
-            text: 'Ingrese',
-            onPressed: () {
-              print(emailController.text);
-              print(passwordController.text);
-            },
+            text: 'Crear cuenta',
+            onPressed: authService.isAuthenticating
+                ? null
+                : () async {
+                    FocusScope.of(context).unfocus();
+                    final registerOk = await authService.register(
+                      emailController.text.trim(),
+                      passwordController.text.trim(),
+                      nameController.text.trim(),
+                    );
+                    if (registerOk) {
+                      // TODO: Conectar a nuestro socket server
+                      Navigator.pushReplacementNamed(context, 'users');
+                    } else {
+                      mostrarAlerta(context, 'Error en el Registro',
+                          authService.errorMessage);
+                    }
+                  },
           ),
         ],
       ),

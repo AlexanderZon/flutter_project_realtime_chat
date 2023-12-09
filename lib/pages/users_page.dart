@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:realtime_chat_project/models/user_model.dart';
+import 'package:realtime_chat_project/services/auth_service.dart';
 
 class UsersPage extends StatefulWidget {
   @override
@@ -9,13 +11,15 @@ class UsersPage extends StatefulWidget {
 
 class _UsersPageState extends State<UsersPage> {
   final users = [
-    UserModel(uid: '1', name: 'Maria', email: 'test1@test.com', online: true),
-    UserModel(uid: '2', name: 'Melissa', email: 'test2@test.com', online: true),
+    UserModel(uid: '1', nombre: 'Maria', email: 'test1@test.com', online: true),
     UserModel(
-        uid: '3', name: 'Fernando', email: 'test3@test.com', online: true),
-    UserModel(uid: '4', name: 'Alexis', email: 'test4@test.com', online: true),
+        uid: '2', nombre: 'Melissa', email: 'test2@test.com', online: true),
     UserModel(
-        uid: '5', name: 'Natascha', email: 'test5@test.com', online: false),
+        uid: '3', nombre: 'Fernando', email: 'test3@test.com', online: true),
+    UserModel(
+        uid: '4', nombre: 'Alexis', email: 'test4@test.com', online: true),
+    UserModel(
+        uid: '5', nombre: 'Natascha', email: 'test5@test.com', online: false),
   ];
 
   RefreshController _refreshController =
@@ -23,17 +27,21 @@ class _UsersPageState extends State<UsersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Mi nombre',
+          authService.usuario.nombre,
           style: TextStyle(color: Colors.black87),
         ),
         elevation: 1,
         backgroundColor: Colors.white,
         leading: IconButton(
           icon: Icon(Icons.exit_to_app, color: Colors.black87),
-          onPressed: () {},
+          onPressed: () {
+            AuthService.deleteToken();
+            Navigator.pushReplacementNamed(context, 'login');
+          },
         ),
         actions: [
           Container(
@@ -75,10 +83,10 @@ class _UsersPageState extends State<UsersPage> {
 
   ListTile _userListTile(UserModel user) {
     return ListTile(
-      title: Text(user.name),
+      title: Text(user.nombre),
       subtitle: Text(user.email),
       leading: CircleAvatar(
-        child: Text(user.name.substring(0, 2)),
+        child: Text(user.nombre.substring(0, 2)),
         backgroundColor: Colors.blue[100],
       ),
       trailing: Container(
