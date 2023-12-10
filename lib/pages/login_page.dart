@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:realtime_chat_project/helpers/mostrar_alerta.dart';
 import 'package:realtime_chat_project/services/auth_service.dart';
+import 'package:realtime_chat_project/services/socket_service.dart';
 import 'package:realtime_chat_project/widgets/blue_button_widget.dart';
 import 'package:realtime_chat_project/widgets/custom_input_widget.dart';
 import 'package:realtime_chat_project/widgets/labels_widget.dart';
@@ -55,6 +56,7 @@ class __FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -84,8 +86,8 @@ class __FormState extends State<_Form> {
                       passwordController.text.trim(),
                     );
                     if (loginOk) {
-                      // TODO: Conectar a nuestro socket server
                       Navigator.pushReplacementNamed(context, 'users');
+                      socketService.connect();
                     } else {
                       mostrarAlerta(context, 'Error en Login',
                           'E-mail o contraseña equivocadas.');

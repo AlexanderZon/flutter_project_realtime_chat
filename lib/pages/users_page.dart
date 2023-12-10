@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:realtime_chat_project/models/user_model.dart';
 import 'package:realtime_chat_project/services/auth_service.dart';
+import 'package:realtime_chat_project/services/socket_service.dart';
+import 'package:realtime_chat_project/services/usuarios_service.dart';
 
 class UsersPage extends StatefulWidget {
   @override
@@ -10,24 +12,35 @@ class UsersPage extends StatefulWidget {
 }
 
 class _UsersPageState extends State<UsersPage> {
-  final users = [
-    UserModel(uid: '1', nombre: 'Maria', email: 'test1@test.com', online: true),
-    UserModel(
-        uid: '2', nombre: 'Melissa', email: 'test2@test.com', online: true),
-    UserModel(
-        uid: '3', nombre: 'Fernando', email: 'test3@test.com', online: true),
-    UserModel(
-        uid: '4', nombre: 'Alexis', email: 'test4@test.com', online: true),
-    UserModel(
-        uid: '5', nombre: 'Natascha', email: 'test5@test.com', online: false),
-  ];
+  final usuariosService = UsuariosService();
+
+  List<UserModel> users = [];
+  // final users = [
+  //   UserModel(uid: '1', nombre: 'Maria', email: 'test1@test.com', online: true),
+  //   UserModel(
+  //       uid: '2', nombre: 'Melissa', email: 'test2@test.com', online: true),
+  //   UserModel(
+  //       uid: '3', nombre: 'Fernando', email: 'test3@test.com', online: true),
+  //   UserModel(
+  //       uid: '4', nombre: 'Alexis', email: 'test4@test.com', online: true),
+  //   UserModel(
+  //       uid: '5', nombre: 'Natascha', email: 'test5@test.com', online: false),
+  // ];
 
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
   @override
+  void initState() {
+    // TODO: implement initState
+    _loadUsers();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -39,17 +52,23 @@ class _UsersPageState extends State<UsersPage> {
         leading: IconButton(
           icon: Icon(Icons.exit_to_app, color: Colors.black87),
           onPressed: () {
-            AuthService.deleteToken();
             Navigator.pushReplacementNamed(context, 'login');
+            AuthService.deleteToken();
+            socketService.disconnect();
           },
         ),
         actions: [
           Container(
             margin: EdgeInsets.only(right: 10),
-            child: Icon(
-              Icons.check_circle,
-              color: Colors.red,
-            ),
+            child: socketService.serverStatus == ServerStatus.Online
+                ? Icon(
+                    Icons.check_circle,
+                    color: Colors.blue,
+                  )
+                : Icon(
+                    Icons.offline_bolt,
+                    color: Colors.red,
+                  ),
           )
         ],
       ),
@@ -70,7 +89,9 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   _loadUsers() async {
-    await Future.delayed(Duration(milliseconds: 1000));
+    // await Future.delayed(Duration(milliseconds: 1000));
+    users = await usuariosService.getUsuarios();
+    setState(() {});
     _refreshController.refreshCompleted();
   }
 
