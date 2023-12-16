@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:realtime_chat_project/models/user_model.dart';
 import 'package:realtime_chat_project/services/auth_service.dart';
+import 'package:realtime_chat_project/services/chat_service.dart';
 import 'package:realtime_chat_project/services/socket_service.dart';
 import 'package:realtime_chat_project/services/usuarios_service.dart';
 
@@ -15,17 +16,6 @@ class _UsersPageState extends State<UsersPage> {
   final usuariosService = UsuariosService();
 
   List<UserModel> users = [];
-  // final users = [
-  //   UserModel(uid: '1', nombre: 'Maria', email: 'test1@test.com', online: true),
-  //   UserModel(
-  //       uid: '2', nombre: 'Melissa', email: 'test2@test.com', online: true),
-  //   UserModel(
-  //       uid: '3', nombre: 'Fernando', email: 'test3@test.com', online: true),
-  //   UserModel(
-  //       uid: '4', nombre: 'Alexis', email: 'test4@test.com', online: true),
-  //   UserModel(
-  //       uid: '5', nombre: 'Natascha', email: 'test5@test.com', online: false),
-  // ];
 
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -118,6 +108,12 @@ class _UsersPageState extends State<UsersPage> {
           borderRadius: BorderRadius.circular(100),
         ),
       ),
+      onTap: () {
+        print(user.nombre);
+        final chatService = Provider.of<ChatService>(context, listen: false);
+        chatService.usuarioPara = user;
+        Navigator.pushNamed(context, 'chat');
+      },
     );
   }
 }
